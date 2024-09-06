@@ -11,6 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CSS } from '@dnd-kit/utilities';
 import useCurrentSetList from '@/hooks/use-current-set-list';
+
 type Props = {};
 
 export const SetList = (props: Props) => {
@@ -28,14 +29,14 @@ export const SetList = (props: Props) => {
     >
       <ul className="space-y-1.5 overflow-y-auto pb-4">
         {items.map((set) => (
-          <SetCard key={set.id} {...set} />
+          <SetListItem key={set.id} {...set} />
         ))}
       </ul>
     </SortableContext>
   );
 };
 
-export const SetCard = ({
+export const SetListItem = ({
   id,
   name,
   mixes,
@@ -48,12 +49,18 @@ export const SetCard = ({
     transform,
     transition,
     isDragging,
+    isOver,
+    over,
+    overIndex,
   } = useSortable({ id: `set-${id}` });
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging && !isDraggingOverlay ? 0.5 : 1, // Hide the original when dragging, keep the overlay visible
   };
+
+  // Apply the hover style based on the `isOver` state
+  const hoverStyle = isOver ? 'bg-neutral-800' : 'bg-neutral-900';
   return (
     <li
       ref={setNodeRef} // Use setNodeRef to mark this item as both draggable and droppable
@@ -61,8 +68,9 @@ export const SetCard = ({
       {...attributes} // Pass down attributes for draggable behavior
       {...listeners} // Pass down listeners for dragging events
       className={cn(
-        'bg-neutral-900 border-border border h-14 px-4 py-2 rounded-lg flex justify-between items-center cursor-pointer transition-all duration-200',
-        // isDraggingOverlay && 'opacity-100 cursor-grabbing',
+        'bg-neutral-900 border-border border h-14 px-4 py-2 rounded-lg flex justify-between items-center cursor-pointer', // Do not add a custom transition and duration to it becasue it will be handled by DndKit, if we add manually it will conflict with DndKit and cause unexpected flickering
+        isDraggingOverlay && 'opacity-100 cursor-grabbing',
+        hoverStyle,
       )}
     >
       <div className="flex items-center">
