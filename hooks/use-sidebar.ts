@@ -1,3 +1,4 @@
+import { isMobileDevice } from '@/utils/is-mobile-device';
 import { create } from 'zustand';
 
 interface SidebarState {
@@ -6,10 +7,6 @@ interface SidebarState {
   toggle: () => void;
   open: () => void;
   close: () => void;
-}
-
-function isMobileDevice(): boolean {
-  return /Mobi|Android/i.test(navigator.userAgent);
 }
 
 export const useSidebar = create<SidebarState>()((set) => ({
