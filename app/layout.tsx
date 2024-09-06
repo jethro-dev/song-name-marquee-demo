@@ -7,6 +7,7 @@ import { Header } from '@/components/header';
 
 import './globals.css';
 import DndProvider from '@/providers/dnd-provider';
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -37,6 +38,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
+              <Toaster position="top-right" />
             </div>
           </div>
         </DndProvider>
