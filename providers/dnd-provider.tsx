@@ -1,7 +1,7 @@
 'use client';
 
 import { DemoListItem } from '@/components/demo-list';
-import { SetCard } from '@/components/set-list';
+import { SetListItem } from '@/components/set-list';
 import { Mix, Set } from '@/constant/data';
 import useCurrentMixList from '@/hooks/use-current-mix-list';
 import useCurrentSetList from '@/hooks/use-current-set-list';
@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 type Props = {
   children: React.ReactNode;
@@ -78,14 +79,13 @@ const DndProvider = ({ children }: Props) => {
     const activeId = active.id as string; // Remove prefix when processing
     const overId = over.id as string; // Remove prefix when processing
 
-    // Handle mix reordering within the DemoList
+    // If the active and over IDs are the same, that means we are not reordering, we do nothing
     if (activeId !== overId) {
+      // Handle mix reordering within the DemoList
       if (activeId.startsWith('mix') && overId.startsWith('mix')) {
         console.log('Handle mix reordering');
         const activeId = active.id.toString().replace('mix-', ''); // Remove prefix when processing
         const overId = over.id.toString().replace('mix-', ''); // Remove prefix when processing
-        console.log('ActiveID: ', activeId);
-        console.log('OverID: ', overId);
         setMixes((prevItems) => {
           const oldIndex = prevItems.findIndex((item) => item.id === activeId);
           const newIndex = prevItems.findIndex((item) => item.id === overId);
@@ -93,13 +93,37 @@ const DndProvider = ({ children }: Props) => {
         });
       }
 
+      // Handle dropping a mix into a set
+      else if (activeId.startsWith('mix') && overId.startsWith('set')) {
+        const activeMixId = activeId.replace('mix-', '');
+        const overSetId = overId.replace('set-', '');
+
+        // Find the mix and the target set
+        const mixToAdd = mixes.find((mix) => mix.id === activeMixId);
+
+        console.log('Mix to add: ', mixToAdd);
+        console.log('Over set ID: ', overSetId);
+
+        const updatedSets = sets.map((set) => {
+          if (set.id === overSetId && mixToAdd) {
+            // Add the mix to the set's mixes array
+            return {
+              ...set,
+              mixes: [...set.mixes, mixToAdd],
+            };
+          }
+          return set;
+        });
+
+        setSets(updatedSets);
+        toast(`Added Mix ID ${activeMixId} to Set ID ${overSetId}`);
+      }
+
       // Handle set reordering within the SetList
-      if (activeId.startsWith('set') && overId.startsWith('set')) {
+      else if (activeId.startsWith('set') && overId.startsWith('set')) {
         console.log('Handle set reordering');
         const activeId = active.id.toString().replace('set-', ''); // Remove prefix when processing
         const overId = over.id.toString().replace('set-', ''); // Remove prefix when processing
-        console.log('ActiveID: ', activeId);
-        console.log('OverID: ', overId);
         setSets((prevItems) => {
           const oldIndex = prevItems.findIndex((item) => item.id === activeId);
           const newIndex = prevItems.findIndex((item) => item.id === overId);
@@ -134,7 +158,7 @@ const DndProvider = ({ children }: Props) => {
         {activeItem && activeId?.startsWith('mix-') ? (
           <DemoListItem {...(activeItem as Mix)} isDraggingOverlay />
         ) : activeItem && activeId?.startsWith('set-') ? (
-          <SetCard {...(activeItem as Set)} isDraggingOverlay />
+          <SetListItem {...(activeItem as Set)} isDraggingOverlay />
         ) : null}
       </DragOverlay>
     </DndContext>
