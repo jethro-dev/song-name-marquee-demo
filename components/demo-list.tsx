@@ -86,7 +86,7 @@ export const DemoListItem = ({
       {...attributes}
       {...listeners}
       className={cn(
-        `h-16 px-4 py-2 bg-muted rounded-md cursor-grab border border-neutral-700 flex items-center relative z-0`,
+        `h-16 px-4 py-2 bg-muted rounded-md cursor-grab border border-neutral-700 flex items-center relative z-0`, // Do not add a custom transition and duration to it becasue it will be handled by DndKit, if we add manually it will conflict with DndKit and cause unexpected flickering
         isDraggingOverlay && 'opacity-100 cursor-grabbing',
       )}
     >
